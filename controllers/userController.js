@@ -20,15 +20,18 @@ const loginUser = async (req, res) => {
         }
 
         const token = createToken(user._id);
-        res.json({ success: true, token })
+        return res.status(200).json({ success: true, token });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: 'Error' })
+        console.error('Login error:', error.message || error);
+        return res.status(500).json({ success: false, message: 'Internal server error.' });
     }
 }
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not configured');
+    }
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 }
 
 //register user
