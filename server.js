@@ -1,5 +1,6 @@
 import express from 'express'
 import cors from 'cors'
+import fileUpload from 'express-fileupload'
 import { connectDB } from './config/db.js'
 import foodRouter from './routes/foodRoute.js'
 import userRouter from './routes/userRoute.js';
@@ -9,12 +10,12 @@ import orderRouter from './routes/orderRoute.js';
 
 //app config
 const app = express()
-const port = process.env.PORT
-const baseUrl = process.env.BASE_URL
+const port = process.env.PORT;
 
 // middleware
 app.use(express.json())
 app.use(cors())
+app.use(fileUpload({ createParentPath: true, parseNested: true }))
 
 // normalize duplicate slashes in request URLs
 app.use((req, res, next) => {
@@ -37,7 +38,7 @@ app.get("/", (req, res) => {
 })
 
 const server = app.listen(port, () => {
-    console.log(`Server started on ${baseUrl}`)
+    console.log(`Server started on ${port}`)
 })
 
 server.on('error', (err) => {

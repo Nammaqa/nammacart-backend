@@ -31,7 +31,7 @@ const createToken = (id) => {
     if (!process.env.JWT_SECRET) {
         throw new Error('JWT_SECRET is not configured');
     }
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    return jwt.sign({ id }, process.env.JWT_SECRET);
 }
 
 //register user
