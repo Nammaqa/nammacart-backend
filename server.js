@@ -9,7 +9,8 @@ import orderRouter from './routes/orderRoute.js';
 
 //app config
 const app = express()
-const port = process.env.PORT || 4000
+const port = process.env.PORT
+const baseUrl = process.env.BASE_URL
 
 // middleware
 app.use(express.json())
@@ -36,7 +37,7 @@ app.get("/", (req, res) => {
 })
 
 const server = app.listen(port, () => {
-    console.log(`Server started on http://localhost:${port}`)
+    console.log(`Server started on ${baseUrl}`)
 })
 
 server.on('error', (err) => {
