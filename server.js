@@ -9,11 +9,18 @@ import orderRouter from './routes/orderRoute.js';
 
 //app config
 const app = express()
-const port = 4000
+const port = process.env.PORT
+const baseUrl = process.env.BASE_URL
 
 // middleware
 app.use(express.json())
 app.use(cors())
+
+// normalize duplicate slashes in request URLs
+app.use((req, res, next) => {
+    req.url = req.url.replace(/\/\/+/, '/');
+    next();
+});
 
 //db connection
 connectDB();
@@ -29,8 +36,16 @@ app.get("/", (req, res) => {
     res.send("API working")
 })
 
-app.listen(port, () => {
-    console.log(`Server started on http://localhost:₹{port}`)
+const server = app.listen(port, () => {
+    console.log(`Server started on ${baseUrl}`)
 })
 
-//mongodb+srv://dulanjalisenarathna93:E2JUb0zfaT2FVp8D@cluster0.exkxkun.mongodb.net/?
+server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${port} is already in use. Please stop the running server or set a different PORT.`)
+        process.exit(1)
+    }
+    console.error('Server error:', err)
+    process.exit(1)
+})
+

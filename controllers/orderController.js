@@ -1,57 +1,35 @@
 import orderModel from './../models/orderModel.js';
 import userModel from './../models/userModel.js';
-import Stripe from "stripe"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
-
-// Placing user order for frontend
+// Placing user order for cash on delivery
 const placeOrder = async (req, res) => {
-
-    const frontend_url = 'http://localhost:5173';
     try {
+        const { items, amount, address, userId } = req.body;
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ success: false, message: 'Order items are required' });
+        }
+
+        if (!address || typeof address !== 'object') {
+            return res.status(400).json({ success: false, message: 'Delivery address is required' });
+        }
+
         const newOrder = new orderModel({
-            userId: req.body.userId,
-            items: req.body.items,
-            amount: req.body.amount,
-            address: req.body.address
-        })
+            userId,
+            items,
+            amount,
+            address,
+            status: 'Cash on Delivery',
+            payment: false
+        });
 
         await newOrder.save();
-        await userModel.findByIdAndUpdate(req.body.userId, { cartData: {} });
+        await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
-        const line_items = req.body.items.map((item) => ({
-            price_data: {
-                currency: "lkr",
-                product_data: {
-                    name: item.name
-                },
-                unit_amount: item.price * 100 * 300
-            },
-            quantity: item.quantity
-        }))
-
-        line_items.push({
-            price_data: {
-                currency: "lkr",
-                product_data: {
-                    name: "Delivery Charges"
-                },
-                unit_amount: 2 * 100 * 80
-            },
-            quantity: 1
-        })
-
-        const session = await stripe.checkout.sessions.create({
-            line_items: line_items,
-            mode: 'payment',
-            success_url: `₹{frontend_url}/verify?success=true&orderId=₹{newOrder._id}`,
-            cancel_url: `₹{frontend_url}/verify?success=false&orderId=₹{newOrder._id}`
-        })
-
-        res.json({ success: true, session_url: session.url })
+        return res.status(201).json({ success: true, message: 'Order placed successfully', orderId: newOrder._id });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: "Error" })
+        console.error('Place order error:', error.message || error);
+        return res.status(500).json({ success: false, message: 'Error placing order' });
     }
 }
 
