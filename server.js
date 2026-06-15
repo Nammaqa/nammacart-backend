@@ -15,14 +15,26 @@ const port = process.env.PORT;
 // middleware
 app.use(express.json())
 const allowedOrigins = [
-  'https://nammacart-admin.vercel.app/'
+  'https://nammacart-admin.vercel.app', 
+  'http://localhost:3000' // Keep this if you test locally
 ];
 
-const corsOptions = {
-  origin: allowedOrigins
-};
+app.use(cors({
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-app.use(cors(corsOptions));
+// CRITICAL: Explicitly handle preflight OPTIONS requests for Vercel Serverless
+app.options('*', cors()); 
 app.use(fileUpload({ createParentPath: true, parseNested: true }))
 
 // normalize duplicate slashes in request URLs
