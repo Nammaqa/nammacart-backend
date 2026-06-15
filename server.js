@@ -14,7 +14,12 @@ const port = process.env.PORT;
 
 // middleware
 app.use(express.json())
-app.use(cors({ origin: '*' }));
+const corsOptions = {
+  origin: 'https://nammacart-admin.vercel.app/' 
+};
+
+// Apply to all routes
+app.use(cors(corsOptions));
 app.use(fileUpload({ createParentPath: true, parseNested: true }))
 
 // normalize duplicate slashes in request URLs
