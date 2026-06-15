@@ -14,11 +14,14 @@ const port = process.env.PORT;
 
 // middleware
 app.use(express.json())
+const allowedOrigins = [
+  'https://nammacart-admin.vercel.app/'
+];
+
 const corsOptions = {
-  origin: 'https://nammacart-admin.vercel.app/' 
+  origin: allowedOrigins
 };
 
-// Apply to all routes
 app.use(cors(corsOptions));
 app.use(fileUpload({ createParentPath: true, parseNested: true }))
 
