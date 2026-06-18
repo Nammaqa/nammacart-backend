@@ -16,7 +16,8 @@ const port = process.env.PORT;
 app.use(express.json())
 const allowedOrigins = [
   'https://nammacart-admin.vercel.app', 
-  'http://localhost:3000' // Keep this if you test locally
+  'http://localhost:3000', // Keep this if you test locally
+  'https://nammacart.vercel.app'
 ];
 
 app.use(cors({
